@@ -22,6 +22,7 @@ process.on('SIGTERM', () => {
 process.on('SIGINT', () => {
   logger.info('SIGINT received, shutting down gracefully');
   server.close(() => {
+    logger.info('Server closed');
     process.exit(0);
   });
 });

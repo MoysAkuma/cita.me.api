@@ -2,6 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import * as appointmentService from './appointment.service';
 import { successResponse, errorResponse, paginatedResponse } from '../../utils/response';
 
+const buildResourceUrl = (req: Request, id: string | number): string => {
+  const basePath = req.originalUrl.replace(/\/$/, '');
+  return `${req.protocol}://${req.get('host')}${basePath}/${id}`;
+};
+
 export const getCitas = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const page = parseInt(req.query['page'] as string) || 1;
@@ -26,7 +31,7 @@ export const getCitaById = async (req: Request, res: Response, next: NextFunctio
 export const createCita = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const cita = await appointmentService.createCita(req.user!.sub, req.body);
-    successResponse(res, cita, 'Appointment created', 201);
+    successResponse(res, { id: cita.id, url: buildResourceUrl(req, cita.id) }, 'Appointment created', 201);
   } catch (err) { next(err); }
 };
 
@@ -64,6 +69,11 @@ export const getConfirmaciones = async (req: Request, res: Response, next: NextF
 export const createConfirmacion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const confirmacion = await appointmentService.createConfirmacion(req.params['citaId'] as string, req.body);
-    successResponse(res, confirmacion, 'Confirmation created', 201);
+    successResponse(
+      res,
+      { id: confirmacion.id, url: buildResourceUrl(req, confirmacion.id) },
+      'Confirmation created',
+      201
+    );
   } catch (err) { next(err); }
 };

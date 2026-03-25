@@ -2,6 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import * as catalogueService from './catalogue.service';
 import { successResponse, errorResponse } from '../../utils/response';
 
+const buildResourceUrl = (req: Request, id: string | number): string => {
+  const basePath = req.originalUrl.replace(/\/$/, '');
+  return `${req.protocol}://${req.get('host')}${basePath}/${id}`;
+};
+
 export const getCategoriasProveedores = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const data = await catalogueService.getCategoriasProveedores();
@@ -20,7 +25,7 @@ export const getCategoriaProveedorById = async (req: Request, res: Response, nex
 export const createCategoriaProveedor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const data = await catalogueService.createCategoriaProveedor(req.body);
-    successResponse(res, data, 'Category created', 201);
+    successResponse(res, { id: data.id, url: buildResourceUrl(req, data.id) }, 'Category created', 201);
   } catch (err) { next(err); }
 };
 
@@ -58,7 +63,7 @@ export const getCategoriaServicioById = async (req: Request, res: Response, next
 export const createCategoriaServicio = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const data = await catalogueService.createCategoriaServicio(req.body);
-    successResponse(res, data, 'Category created', 201);
+    successResponse(res, { id: data.id, url: buildResourceUrl(req, data.id) }, 'Category created', 201);
   } catch (err) { next(err); }
 };
 
@@ -102,6 +107,6 @@ export const getStatusCatalogo = async (req: Request, res: Response, next: NextF
 export const createStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const data = await catalogueService.createStatus(req.body);
-    successResponse(res, data, 'Status created', 201);
+    successResponse(res, { id: data.id, url: buildResourceUrl(req, data.id) }, 'Status created', 201);
   } catch (err) { next(err); }
 };

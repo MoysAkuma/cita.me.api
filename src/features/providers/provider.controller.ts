@@ -2,6 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import * as providerService from './provider.service';
 import { successResponse, errorResponse, paginatedResponse } from '../../utils/response';
 
+const buildResourceUrl = (req: Request, id: string | number): string => {
+  const basePath = req.originalUrl.replace(/\/$/, '');
+  return `${req.protocol}://${req.get('host')}${basePath}/${id}`;
+};
+
 // ---- Proveedores ----
 export const getProveedores = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -29,7 +34,7 @@ export const createProveedor = async (req: Request, res: Response, next: NextFun
   try {
     const userId = req.user!.sub;
     const proveedor = await providerService.createProveedor(userId, req.body);
-    successResponse(res, proveedor, 'Provider created', 201);
+    successResponse(res, { id: proveedor.id, url: buildResourceUrl(req, proveedor.id) }, 'Provider created', 201);
   } catch (err) { next(err); }
 };
 
@@ -68,7 +73,7 @@ export const getSucursalById = async (req: Request, res: Response, next: NextFun
 export const createSucursal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const sucursal = await providerService.createSucursal(req.user!.sub, req.params['proveedorId'] as string, req.body);
-    successResponse(res, sucursal, 'Branch created', 201);
+    successResponse(res, { id: sucursal.id, url: buildResourceUrl(req, sucursal.id) }, 'Branch created', 201);
   } catch (err) { next(err); }
 };
 
@@ -99,7 +104,7 @@ export const getEmpleados = async (req: Request, res: Response, next: NextFuncti
 export const createEmpleado = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const empleado = await providerService.createEmpleado(req.params['proveedorId'] as string, req.body);
-    successResponse(res, empleado, 'Employee added', 201);
+    successResponse(res, { id: empleado.id, url: buildResourceUrl(req, empleado.id) }, 'Employee added', 201);
   } catch (err) { next(err); }
 };
 
@@ -122,7 +127,7 @@ export const getServicios = async (req: Request, res: Response, next: NextFuncti
 export const createServicio = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const servicio = await providerService.createServicio(req.params['proveedorId'] as string, req.body);
-    successResponse(res, servicio, 'Service created', 201);
+    successResponse(res, { id: servicio.id, url: buildResourceUrl(req, servicio.id) }, 'Service created', 201);
   } catch (err) { next(err); }
 };
 
@@ -153,7 +158,7 @@ export const getHorarios = async (req: Request, res: Response, next: NextFunctio
 export const createHorario = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const horario = await providerService.createHorario(req.params['proveedorId'] as string, req.body);
-    successResponse(res, horario, 'Schedule created', 201);
+    successResponse(res, { id: horario.id, url: buildResourceUrl(req, horario.id) }, 'Schedule created', 201);
   } catch (err) { next(err); }
 };
 
@@ -184,7 +189,7 @@ export const getDocumentacion = async (req: Request, res: Response, next: NextFu
 export const createDocumentacion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const doc = await providerService.createDocumentacion(req.params['proveedorId'] as string, req.body);
-    successResponse(res, doc, 'Document added', 201);
+    successResponse(res, { id: doc.id, url: buildResourceUrl(req, doc.id) }, 'Document added', 201);
   } catch (err) { next(err); }
 };
 

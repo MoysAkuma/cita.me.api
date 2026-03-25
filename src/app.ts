@@ -3,6 +3,8 @@ import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerDefinition } from './config/swagger';
 
 import authRoutes from './features/auth/auth.routes';
 import userRoutes from './features/users/user.routes';
@@ -39,6 +41,8 @@ const authLimiter = rateLimit({
 app.use(globalLimiter);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDefinition));
 
 app.use('/auth', authLimiter, authRoutes);
 app.use('/user', userRoutes);

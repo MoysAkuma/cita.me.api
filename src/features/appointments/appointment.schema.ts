@@ -2,11 +2,12 @@ import { z } from 'zod';
 
 export const createAppointmentSchema = z.object({
   proveedorId: z.string().uuid(),
-  servicioId: z.string().uuid(),
-  sucursalId: z.string().uuid().optional(),
+  servicioId: z.number().int().positive(),
+  sucursalId: z.number().int().positive().optional(),
+  nombreSolicitante: z.string().max(100),
+  whatsappSolicitante: z.string().max(20),
+  correoSolicitante: z.string().email().max(100),
   fechaSolicitada: z.string(),
-  horaSolicitada: z.string(),
-  horaFinalizacionDeseada: z.string().optional(),
   notas: z.string().optional(),
 });
 

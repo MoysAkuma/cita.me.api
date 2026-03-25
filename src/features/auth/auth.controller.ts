@@ -2,6 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service';
 import { successResponse, errorResponse } from '../../utils/response';
 
+const buildResourceUrl = (req: Request, id: string | number): string => {
+  const basePath = req.originalUrl.replace(/\/$/, '');
+  return `${req.protocol}://${req.get('host')}${basePath}/${id}`;
+};
+
 export const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const result = await authService.register(req.body);

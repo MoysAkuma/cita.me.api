@@ -12,6 +12,30 @@ export const createProviderSchema = z.object({
   pais: z.number().int().optional(),
 });
 
+export const createOnboardingSchema = z.object({
+  Nombres: z.object({ 
+    Legal: z.string().min(1).max(255),
+    Comercial: z.string().min(1).max(255).optional(),
+  }),
+  Categoria: z.number().int().positive(), 
+  Nombre_Comercial: z.string().min(1).max(255),
+  About: z.string().optional(),
+  Ciudad : z.number().int().optional(),
+  Estado: z.number().int().optional(),
+  Pais: z.number().int().optional(),
+  Direccion: z.string().optional(),
+  RFC: z.string().max(20).optional(),
+  Contacto: z.object({
+    Email: z.string().email().optional(),
+    Telefono: z.string().optional(),
+    Whatsapp: z.string().optional(),
+  }),
+  Horario : z.object({
+    Hora_Apertura: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/), // HH:mm format
+    Hora_Cierre: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/), // HH:mm format
+  }),
+});
+
 export const updateProviderSchema = createProviderSchema.partial();
 
 export const createSucursalSchema = z.object({

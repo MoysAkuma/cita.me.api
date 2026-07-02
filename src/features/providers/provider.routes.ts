@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middleware/validate.middleware';
 import { authenticate } from '../../middleware/auth.middleware';
 import {
-  createProviderSchema, updateProviderSchema,
+  createOnboardingSchema, createProviderSchema, updateProviderSchema,
   createSucursalSchema, updateSucursalSchema,
   createEmpleadoSchema, createServicioSchema, updateServicioSchema,
   createHorarioSchema, updateHorarioSchema, createDocumentacionSchema,
@@ -11,6 +11,8 @@ import * as providerController from './provider.controller';
 
 const router = Router();
 
+// Onboarding
+router.post('/onboarding', validate({ body: createOnboardingSchema }), providerController.onboarding);
 // Proveedores
 router.get('/', authenticate, providerController.getProveedores);
 router.get('/:id', authenticate, providerController.getProveedorById);

@@ -7,6 +7,15 @@ const buildResourceUrl = (req: Request, id: string | number): string => {
   return `${req.protocol}://${req.get('host')}${basePath}/${id}`;
 };
 
+//---- Onboarding ----
+export const onboarding = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const userId = req.user!.sub;
+    const onboardingData = await providerService.onboarding(userId, req.body);
+    successResponse(res, onboardingData, 'Onboarding completed', 201);
+  }
+  catch (err) { next(err); }
+}
 // ---- Proveedores ----
 export const getProveedores = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

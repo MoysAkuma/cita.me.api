@@ -6,6 +6,10 @@ import {
 } from './provider.schema';
 import * as providerRepository from './provider.repository';
 
+// ---- Onboarding ----
+export const onboarding = async (userId: string, input: CreateProviderInput) => {
+   
+};
 // ---- Proveedores ----
 export const getProveedores = async (page: number, limit: number, filters: { categoria?: number; ciudad?: number; estado?: number }) => {
   return providerRepository.findProveedores(page, limit, filters);

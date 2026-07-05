@@ -1,15 +1,24 @@
 import { z } from 'zod';
 
 export const createProviderSchema = z.object({
+  user_id: z.string().uuid(),
   categoria: z.number().int().positive(),
-  nombreLegal: z.string().min(1).max(255),
-  nombreComercial: z.string().min(1).max(255),
+  nombre_legal: z.string().min(1).max(255),
+  nombre_comercial: z.string().min(1).max(255),
   rfc: z.string().max(20).optional(),
   descripcion: z.string().optional(),
-  direccion: z.string().optional(),
-  ciudad: z.number().int().optional(),
-  estado: z.number().int().optional(),
-  pais: z.number().int().optional(),
+  ubicacion: z.object({
+    ciudad: z.number().int(),
+    estado: z.number().int(),
+    direccion: z.string().optional(),
+    codigo_postal: z.string().optional(),
+  }),
+  ranking: z.string().optional(),
+  contacto: z.object({
+    email: z.string().email().optional(),
+    telefono: z.string().optional(),
+    whatsapp: z.string().optional(),
+  }),
 });
 
 export const createOnboardingSchema = z.object({

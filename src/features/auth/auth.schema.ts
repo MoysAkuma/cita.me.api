@@ -2,14 +2,17 @@ import { z } from 'zod';
 
 export const registerSchema = z.object({
   nombre: z.string().min(1).max(100),
-  apellido: z.string().min(1).max(100),
+  segundo_nombre: z.string().min(1).max(100),
+  apellido_paterno: z.string().min(1).max(100),
+  apellido_materno: z.string().min(1).max(100),
+  acerca_de_mi: z.string().optional(),
   correo: z.string().email(),
   contraseña: z.string().min(8),
   telefono: z.string().optional(),
-  telefonoWhatsapp: z.string().optional(),
-  fechaNacimiento: z.string().optional(),
+  telefono_whatsapp: z.string().optional(),
+  fecha_nacimiento: z.string().optional(),
   sexo: z.string().optional(),
-  acercaDeMi: z.string().optional(),
+  profile_photo_url: z.string().optional(),
 });
 
 export const loginSchema = z.object({

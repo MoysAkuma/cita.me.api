@@ -40,10 +40,24 @@ export const findProveedorById = async (id: string) => {
 
 export const insertProveedor = async (userId: string, input: CreateProviderInput) => {
   const { rows } = await pool.query(
-    `INSERT INTO proveedores (user_id, categoria, nombre_legal, nombre_comercial, rfc, descripcion, direccion, ciudad, estado, pais)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-    [userId, input.categoria, input.nombreLegal, input.nombreComercial, input.rfc ?? null,
-     input.descripcion ?? null, input.direccion ?? null, input.ciudad ?? null, input.estado ?? null, input.pais ?? null]
+    `INSERT INTO proveedores (user_id, categoria, nombre_legal, nombre_comercial, rfc, descripcion, direccion, ciudad, estado, pais, rating, codigo_postal, telefono, telefono_whatsapp)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+    [
+      userId, 
+      input.categoria, 
+      input.nombre_legal, 
+      input.nombre_comercial, 
+      input.rfc ?? null,
+      input.descripcion ?? null, 
+      input.ubicacion.direccion ?? null, 
+      input.ubicacion.ciudad ?? null, 
+      input.ubicacion.estado ?? null,
+      1,
+      input.ranking ?? 1,
+      input.ubicacion.codigo_postal ?? null,
+      input.contacto.telefono ?? null,
+      input.contacto.whatsapp ?? null
+    ]
   );
   return rows[0];
 };
@@ -54,14 +68,13 @@ export const updateProveedorById = async (id: string, input: UpdateProviderInput
   let idx = 1;
 
   if (input.categoria !== undefined) { fields.push(`categoria = $${idx++}`); values.push(input.categoria); }
-  if (input.nombreLegal !== undefined) { fields.push(`nombre_legal = $${idx++}`); values.push(input.nombreLegal); }
-  if (input.nombreComercial !== undefined) { fields.push(`nombre_comercial = $${idx++}`); values.push(input.nombreComercial); }
+  if (input.nombre_legal !== undefined) { fields.push(`nombre_legal = $${idx++}`); values.push(input.nombre_legal); }
+  if (input.nombre_comercial !== undefined) { fields.push(`nombre_comercial = $${idx++}`); values.push(input.nombre_comercial); }
   if (input.rfc !== undefined) { fields.push(`rfc = $${idx++}`); values.push(input.rfc); }
   if (input.descripcion !== undefined) { fields.push(`descripcion = $${idx++}`); values.push(input.descripcion); }
-  if (input.direccion !== undefined) { fields.push(`direccion = $${idx++}`); values.push(input.direccion); }
-  if (input.ciudad !== undefined) { fields.push(`ciudad = $${idx++}`); values.push(input.ciudad); }
-  if (input.estado !== undefined) { fields.push(`estado = $${idx++}`); values.push(input.estado); }
-  if (input.pais !== undefined) { fields.push(`pais = $${idx++}`); values.push(input.pais); }
+  if (input.ubicacion?.direccion !== undefined) { fields.push(`direccion = $${idx++}`); values.push(input.ubicacion.direccion); }
+  if (input.ubicacion?.ciudad !== undefined) { fields.push(`ciudad = $${idx++}`); values.push(input.ubicacion.ciudad); }
+  if (input.ubicacion?.estado !== undefined) { fields.push(`estado = $${idx++}`); values.push(input.ubicacion.estado); }
 
   if (fields.length === 0) return findProveedorById(id);
 

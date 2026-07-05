@@ -32,15 +32,24 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
 
     // Check token blacklist in Redis
-    const isBlacklisted = await redis.get(`blacklist:${payload.jti}`);
-    if (isBlacklisted) {
-      errorResponse(res, 'Token has been revoked', 401);
-      return;
+    try {
+      if (redis.status !== 'ready' && redis.status !== 'connecting') {
+        await redis.connect();
+      }
+      const isBlacklisted = await redis.get(`blacklist:${payload.jti}`);
+      if (isBlacklisted) {
+        errorResponse(res, 'Token has been revoked', 401);
+        return;
+      }
+    } catch (redisError) {
+      // If Redis is down, continue without blacklist check (log the error)
+      console.error('Redis error during authentication:', redisError);
     }
 
     req.user = payload;
     next();
-  } catch {
+  } catch (error) {
+    console.error('JWT verification error:', error);
     errorResponse(res, 'Invalid or expired token', 401);
   }
 };

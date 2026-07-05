@@ -4,7 +4,7 @@ import { authenticate } from '../../middleware/auth.middleware';
 import {
   createCategoriaProveedorSchema, updateCategoriaProveedorSchema,
   createCategoriaServicioSchema, updateCategoriaServicioSchema,
-  createStatusSchema,
+  createStatusSchema, createCiudadSchema, createEstadoSchema,
 } from './catalogue.schema';
 import * as catalogueController from './catalogue.controller';
 
@@ -24,6 +24,8 @@ router.delete('/categorias-servicios/:id', authenticate, catalogueController.del
 
 router.get('/ciudades', catalogueController.getCiudades);
 router.get('/estados', catalogueController.getEstados);
+router.post('/ciudades', authenticate, validate({ body: createCiudadSchema }), catalogueController.createCiudad);
+router.post('/estados', authenticate, validate({ body: createEstadoSchema }), catalogueController.createEstado);
 
 router.get('/status', catalogueController.getStatusCatalogo);
 router.post('/status', authenticate, validate({ body: createStatusSchema }), catalogueController.createStatus);

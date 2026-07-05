@@ -2,7 +2,7 @@ import { pool } from '../../config/database';
 import {
   CreateCategoriaProveedorInput, UpdateCategoriaProveedorInput,
   CreateCategoriaServicioInput, UpdateCategoriaServicioInput,
-  CreateStatusInput,
+  CreateStatusInput, CreateCiudadInput, CreateEstadoInput,
 } from './catalogue.schema';
 
 // CategoriasProveedores
@@ -115,6 +115,22 @@ export const insertStatus = async (input: CreateStatusInput) => {
   const { rows } = await pool.query(
     'INSERT INTO status_catalogo (text, habilitado) VALUES ($1, $2) RETURNING *',
     [input.text, input.habilitado]
+  );
+  return rows[0];
+};
+
+export const insertCiudad = async (input: CreateCiudadInput) => {
+  const { rows } = await pool.query(
+    'INSERT INTO ciudades (name) VALUES ($1) RETURNING *',
+    [input.name]
+  );
+  return rows[0];
+};
+
+export const insertEstado = async (input: CreateEstadoInput) => {
+  const { rows } = await pool.query(
+    'INSERT INTO estados (name) VALUES ($1) RETURNING *',
+    [input.name]
   );
   return rows[0];
 };

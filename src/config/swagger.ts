@@ -403,6 +403,21 @@ const swaggerDefinition = {
           name: { type: 'string', example: 'Ciudad de México' },
         },
       },
+      CreateCiudadInput: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          estadoId: { type: 'integer', example: 9 },
+          name: { type: 'string', minLength: 1, maxLength: 255, example: 'Ciudad de México' },
+        },
+      },
+      CreateEstadoInput: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 255, example: 'Jalisco' },
+        },
+      },
       StatusCatalogo: {
         type: 'object',
         properties: {
@@ -1218,6 +1233,17 @@ const swaggerDefinition = {
           200: { description: 'Lista de ciudades', content: { 'application/json': { schema: { type: 'object', properties: { success: { type: 'boolean', example: true }, data: { type: 'array', items: { $ref: '#/components/schemas/Ciudad' } } } } } } },
         },
       },
+      post: {
+        summary: 'Crear ciudad',
+        tags: ['Catálogos'],
+        security: [{ bearerAuth: [] }],
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateCiudadInput' } } } },
+        responses: {
+          201: { description: 'Ciudad creada', content: { 'application/json': { schema: { type: 'object', properties: { success: { type: 'boolean', example: true }, data: { $ref: '#/components/schemas/Ciudad' } } } } } },
+          400: { $ref: '#/components/responses/ValidationError' },
+          401: { $ref: '#/components/responses/Unauthorized' },
+        },
+      },
     },
     '/catalogues/estados': {
       get: {
@@ -1225,6 +1251,17 @@ const swaggerDefinition = {
         tags: ['Catálogos'],
         responses: {
           200: { description: 'Lista de estados', content: { 'application/json': { schema: { type: 'object', properties: { success: { type: 'boolean', example: true }, data: { type: 'array', items: { $ref: '#/components/schemas/Estado' } } } } } } },
+        },
+      },
+      post: {
+        summary: 'Crear estado',
+        tags: ['Catálogos'],
+        security: [{ bearerAuth: [] }],
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateEstadoInput' } } } },
+        responses: {
+          201: { description: 'Estado creado', content: { 'application/json': { schema: { type: 'object', properties: { success: { type: 'boolean', example: true }, data: { $ref: '#/components/schemas/Estado' } } } } } },
+          400: { $ref: '#/components/responses/ValidationError' },
+          401: { $ref: '#/components/responses/Unauthorized' },
         },
       },
     },

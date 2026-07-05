@@ -110,3 +110,17 @@ export const createStatus = async (req: Request, res: Response, next: NextFuncti
     successResponse(res, { id: data.id, url: buildResourceUrl(req, data.id) }, 'Status created', 201);
   } catch (err) { next(err); }
 };
+
+export const createCiudad = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await catalogueService.createCiudad(req.body);
+    successResponse(res, { id: data.id, url: buildResourceUrl(req, data.id) }, 'Ciudad created', 201);
+  } catch (err) { next(err); }
+};
+
+export const createEstado = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await catalogueService.createEstado(req.body);
+    successResponse(res, { id: data.id, url: buildResourceUrl(req, data.id) }, 'Estado created', 201);
+  } catch (err) { next(err); }
+};

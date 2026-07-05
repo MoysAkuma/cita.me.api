@@ -14,8 +14,8 @@ const router = Router();
 // Onboarding
 router.post('/onboarding', validate({ body: createOnboardingSchema }), providerController.onboarding);
 // Proveedores
-router.get('/', authenticate, providerController.getProveedores);
-router.get('/:id', authenticate, providerController.getProveedorById);
+router.get('/', providerController.getProveedores);
+router.get('/:id', providerController.getProveedorById);
 router.post('/', authenticate, validate({ body: createProviderSchema }), providerController.createProveedor);
 router.put('/:id', authenticate, validate({ body: updateProviderSchema }), providerController.updateProveedor);
 router.delete('/:id', authenticate, providerController.deleteProveedor);

@@ -1,7 +1,7 @@
 import {
   CreateCategoriaProveedorInput, UpdateCategoriaProveedorInput,
   CreateCategoriaServicioInput, UpdateCategoriaServicioInput,
-  CreateStatusInput,
+  CreateStatusInput, CreateCiudadInput, CreateEstadoInput,
 } from './catalogue.schema';
 import * as catalogueRepository from './catalogue.repository';
 
@@ -64,4 +64,12 @@ export const getStatusCatalogo = async () => {
 
 export const createStatus = async (input: CreateStatusInput) => {
   return catalogueRepository.insertStatus(input);
+};
+
+export const createCiudad = async (input: CreateCiudadInput) => {
+  return catalogueRepository.insertCiudad(input);
+};
+
+export const createEstado = async (input: CreateEstadoInput) => {
+  return catalogueRepository.insertEstado(input);
 };

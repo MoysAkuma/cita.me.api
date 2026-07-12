@@ -22,27 +22,29 @@ export const createProviderSchema = z.object({
 });
 
 export const createOnboardingSchema = z.object({
-  Nombres: z.object({ 
-    Legal: z.string().min(1).max(255),
-    Comercial: z.string().min(1).max(255).optional(),
-  }),
-  Categoria: z.number().int().positive(), 
-  Nombre_Comercial: z.string().min(1).max(255),
-  About: z.string().optional(),
-  Ciudad : z.number().int().optional(),
-  Estado: z.number().int().optional(),
-  Pais: z.number().int().optional(),
-  Direccion: z.string().optional(),
-  RFC: z.string().max(20).optional(),
-  Contacto: z.object({
-    Email: z.string().email().optional(),
-    Telefono: z.string().optional(),
-    Whatsapp: z.string().optional(),
-  }),
-  Horario : z.object({
-    Hora_Apertura: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/), // HH:mm format
-    Hora_Cierre: z.string().regex(/^([01]\d|2[0-3]):?([0-5]\d)$/), // HH:mm format
-  }),
+  nombre_comercial : z.string().min(1).max(255),
+  categoria: z.number().int().positive(),
+  descripcion: z.string().optional(),
+  ciudad : z.number().int().optional(),
+  estado: z.number().int().optional(),
+  direccion: z.string().optional(),
+  telefono: z.string().optional(),
+  whatsapp: z.string().optional(),
+  email: z.string().email().optional(),
+  dias_descanso : z.array(z.number().int().min(0).max(6)).optional(),
+  hora_apertura : z.string().optional(),
+  hora_cierre : z.string().optional(),
+  servicios : z.array(z.object({
+    nombre: z.string().min(1).max(255),
+    duracion: z.number().int().positive(),
+    precio: z.number().positive(),
+    descripcion: z.string().optional(),
+  })).optional(),
+  datos_legales : z.object({
+    razon_social: z.string().optional(),
+    representante_legal: z.string().optional(),
+    rfc: z.string().max(20).optional(),
+  }).optional(),
 });
 
 export const updateProviderSchema = createProviderSchema.partial();

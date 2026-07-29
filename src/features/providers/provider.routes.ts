@@ -12,7 +12,7 @@ import * as providerController from './provider.controller';
 const router = Router();
 
 // Onboarding
-router.post('/onboarding', validate({ body: createOnboardingSchema }), providerController.onboarding);
+router.post('/onboarding', authenticate, validate({ body: createOnboardingSchema }), providerController.onboarding);
 // Proveedores
 router.get('/', providerController.getProveedores);
 router.get('/:id', providerController.getProveedorById);

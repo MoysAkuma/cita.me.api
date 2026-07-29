@@ -173,6 +173,95 @@ const swaggerDefinition = {
           ranking: { type: 'string', example: '4.5' },
         },
       },
+      CreateOnboardingInput: {
+        type: 'object',
+        required: ['nombre_comercial', 'categoria', 'datos_legales'],
+        properties: {
+          nombre_comercial: { type: 'string', minLength: 1, maxLength: 255, example: 'Clínica San José' },
+          categoria: { type: 'integer', minimum: 1, example: 1 },
+          descripcion: { type: 'string', example: 'Atención integral y especializada' },
+          ciudad: { type: 'integer', example: 1, description: 'ID de ciudad' },
+          estado: { type: 'integer', example: 9, description: 'ID de estado' },
+          direccion: { type: 'string', example: 'Av. Insurgentes 123' },
+          codigo_postal: { type: 'string', example: '06600' },
+          telefono: { type: 'string', example: '+5215555555555' },
+          whatsapp: { type: 'string', example: '+5215555555555' },
+          email: { type: 'string', format: 'email', example: 'contacto@clinicasanjose.com' },
+          dias_descanso: {
+            type: 'array',
+            items: { type: 'integer', minimum: 0, maximum: 6 },
+            uniqueItems: true,
+            example: [0, 6],
+            description: 'Días sin atención. 0=Domingo, 1=Lunes, ..., 6=Sábado',
+          },
+          hora_apertura: {
+            type: 'string',
+            pattern: '^([01]\\d|2[0-3]):[0-5]\\d$',
+            example: '09:00',
+            description: 'Formato HH:mm',
+          },
+          hora_cierre: {
+            type: 'string',
+            pattern: '^([01]\\d|2[0-3]):[0-5]\\d$',
+            example: '18:00',
+            description: 'Formato HH:mm',
+          },
+          servicios: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['nombre', 'duracion', 'precio'],
+              properties: {
+                nombre: { type: 'string', minLength: 1, maxLength: 255, example: 'Consulta general' },
+                duracion: { type: 'integer', minimum: 1, example: 30 },
+                precio: { type: 'number', minimum: 0, exclusiveMinimum: true, example: 350.0 },
+                descripcion: { type: 'string', example: 'Consulta médica de primer nivel' },
+              },
+            },
+            example: [
+              {
+                nombre: 'Consulta general',
+                duracion: 30,
+                precio: 350,
+                descripcion: 'Consulta médica de primer nivel',
+              },
+            ],
+          },
+          horarios: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['hora_apertura', 'hora_cierre', 'dia_semana'],
+              properties: {
+                hora_apertura: {
+                  type: 'string',
+                  pattern: '^([01]\\d|2[0-3]):[0-5]\\d$',
+                  example: '09:00',
+                },
+                hora_cierre: {
+                  type: 'string',
+                  pattern: '^([01]\\d|2[0-3]):[0-5]\\d$',
+                  example: '18:00',
+                },
+                dia_semana: { type: 'integer', minimum: 0, maximum: 6, example: 1 },
+              },
+            },
+            example: [
+              { hora_apertura: '09:00', hora_cierre: '18:00', dia_semana: 1 },
+              { hora_apertura: '09:00', hora_cierre: '18:00', dia_semana: 2 },
+            ],
+          },
+          datos_legales: {
+            type: 'object',
+            description: 'Objeto requerido; sus campos internos son opcionales',
+            properties: {
+              razon_social: { type: 'string', example: 'Clínica San José S.A.' },
+              representante_legal: { type: 'string', example: 'Dra. María Pérez' },
+              rfc: { type: 'string', maxLength: 20, example: 'CSJ900101ABC' },
+            },
+          },
+        },
+      },
       UpdateProveedorInput: {
         allOf: [{ $ref: '#/components/schemas/CreateProveedorInput' }],
         description: 'Todos los campos son opcionales en la actualización',
@@ -647,6 +736,20 @@ const swaggerDefinition = {
       },
     },
     // ── Proveedores ───────────────────────────────────────────────────────
+    '/proveedores/onboarding' : {
+      post: {
+        summary: 'Onboarding de proveedor',
+        tags: ['Proveedores'],
+        security: [{ bearerAuth: [] }],
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateOnboardingInput' } } } },
+        responses: {
+          201: { description: 'Onboarding completado'},
+          400: { $ref: '#/components/responses/ValidationError' },
+          401: { $ref: '#/components/responses/Unauthorized' },
+          404: { $ref: '#/components/responses/NotFound' },
+        },
+      },
+    },
     '/proveedores': {
       get: {
         summary: 'Listar proveedores (paginado y filtrado)',

@@ -2,15 +2,34 @@ import { Request, Response, NextFunction } from 'express';
 import * as providerService from './provider.service';
 import { successResponse, errorResponse, paginatedResponse } from '../../utils/response';
 
+type AuthenticatedRequest = Request & {
+  user?: {
+    sub: string;
+  };
+};
+
 const buildResourceUrl = (req: Request, id: string | number): string => {
   const basePath = req.originalUrl.replace(/\/$/, '');
   return `${req.protocol}://${req.get('host')}${basePath}/${id}`;
 };
 
+const getUserIdFromToken = (req: AuthenticatedRequest, res: Response): string | null => {
+  const userId = req.user?.sub;
+  if (!userId) {
+    errorResponse(res, 'Unauthorized', 401);
+    return null;
+  }
+
+  return userId;
+};
+
 //---- Onboarding ----
 export const onboarding = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const userId = req.user!.sub;
+    const userId = getUserIdFromToken(req as AuthenticatedRequest, res);
+    if (!userId) {
+      return;
+    }
     const onboardingData = await providerService.onboarding(userId, req.body);
     successResponse(res, onboardingData, 'Onboarding completed', 201);
   }
@@ -41,7 +60,10 @@ export const getProveedorById = async (req: Request, res: Response, next: NextFu
 
 export const createProveedor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const userId = req.user!.sub;
+    const userId = getUserIdFromToken(req as AuthenticatedRequest, res);
+    if (!userId) {
+      return;
+    }
     const proveedor = await providerService.createProveedor(userId, req.body);
     successResponse(res, { id: proveedor.id, url: buildResourceUrl(req, proveedor.id) }, 'Provider created', 201);
   } catch (err) { next(err); }
@@ -81,7 +103,12 @@ export const getSucursalById = async (req: Request, res: Response, next: NextFun
 
 export const createSucursal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const sucursal = await providerService.createSucursal(req.user!.sub, req.params['proveedorId'] as string, req.body);
+    const userId = getUserIdFromToken(req as AuthenticatedRequest, res);
+    if (!userId) {
+      return;
+    }
+
+    const sucursal = await providerService.createSucursal(userId, req.params['proveedorId'] as string, req.body);
     successResponse(res, { id: sucursal.id, url: buildResourceUrl(req, sucursal.id) }, 'Branch created', 201);
   } catch (err) { next(err); }
 };

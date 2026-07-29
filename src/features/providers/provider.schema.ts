@@ -28,6 +28,7 @@ export const createOnboardingSchema = z.object({
   ciudad : z.number().int().optional(),
   estado: z.number().int().optional(),
   direccion: z.string().optional(),
+  codigo_postal: z.string().optional(),
   telefono: z.string().optional(),
   whatsapp: z.string().optional(),
   email: z.string().email().optional(),
@@ -40,11 +41,16 @@ export const createOnboardingSchema = z.object({
     precio: z.number().positive(),
     descripcion: z.string().optional(),
   })).optional(),
+  horarios : z.array(z.object({
+    hora_apertura: z.string(),
+    hora_cierre: z.string(),
+    dia_semana: z.number().int().min(0).max(6)
+  })).optional(),
   datos_legales : z.object({
     razon_social: z.string().optional(),
     representante_legal: z.string().optional(),
     rfc: z.string().max(20).optional(),
-  }).optional(),
+  }),
 });
 
 export const updateProviderSchema = createProviderSchema.partial();
@@ -78,10 +84,11 @@ export const createServicioSchema = z.object({
 export const updateServicioSchema = createServicioSchema.partial();
 
 export const createHorarioSchema = z.object({
-  diaSemana: z.number().int().min(0).max(6),
-  horaApertura: z.string(),
-  horaCierre: z.string(),
-  horaInicio: z.string(),
+  dia_semana: z.number().int().min(0).max(6),
+  hora_apertura: z.string(),
+  hora_cierre: z.string(),
+  status: z.boolean().optional(),
+  disponibilidad: z.string().optional(),
 });
 
 export const updateHorarioSchema = createHorarioSchema.partial();
@@ -101,3 +108,4 @@ export type UpdateServicioInput = z.infer<typeof updateServicioSchema>;
 export type CreateHorarioInput = z.infer<typeof createHorarioSchema>;
 export type UpdateHorarioInput = z.infer<typeof updateHorarioSchema>;
 export type CreateDocumentacionInput = z.infer<typeof createDocumentacionSchema>;
+export type CreateOnboardingInput = z.infer<typeof createOnboardingSchema>;

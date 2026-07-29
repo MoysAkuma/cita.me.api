@@ -5,6 +5,7 @@ import {
   CreateEmpleadoInput, CreateServicioInput, UpdateServicioInput,
   CreateHorarioInput, UpdateHorarioInput, CreateDocumentacionInput,
 } from './provider.schema';
+import type { CreateOnboardingInput } from './provider.schema';
 
 // ---- Proveedores ----
 export const findProveedores = async (
@@ -38,25 +39,24 @@ export const findProveedorById = async (id: string) => {
   return rows[0] ?? null;
 };
 
-export const insertProveedor = async (userId: string, input: CreateProviderInput) => {
+export const insertProveedor = async (userId: string, input: CreateOnboardingInput) => {
   const { rows } = await pool.query(
     `INSERT INTO proveedores (user_id, categoria, nombre_legal, nombre_comercial, rfc, descripcion, direccion, ciudad, estado, pais, rating, codigo_postal, telefono, telefono_whatsapp)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING id`,
     [
       userId, 
       input.categoria, 
-      input.nombre_legal, 
-      input.nombre_comercial, 
-      input.rfc ?? null,
+      input.datos_legales.razon_social ?? null, 
+      input.nombre_comercial,
+      input.datos_legales.rfc ?? null,
       input.descripcion ?? null, 
-      input.ubicacion.direccion ?? null, 
-      input.ubicacion.ciudad ?? null, 
-      input.ubicacion.estado ?? null,
-      1,
-      input.ranking ?? 1,
-      input.ubicacion.codigo_postal ?? null,
-      input.contacto.telefono ?? null,
-      input.contacto.whatsapp ?? null
+      input.direccion ?? null, 
+      input.ciudad ?? null, 
+      input.estado ?? null,
+      1,'5.0',
+      input.codigo_postal ?? null,
+      input.telefono ?? null,
+      input.whatsapp ?? null
     ]
   );
   return rows[0];
@@ -169,9 +169,9 @@ export const findServicios = async (proveedorId: string) => {
 
 export const insertServicio = async (proveedorId: string, input: CreateServicioInput) => {
   const { rows } = await pool.query(
-    `INSERT INTO servicios (proveedor_id, name, duration, descripcion, precio)
-     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-    [proveedorId, input.name, input.duration, input.descripcion ?? null, input.precio]
+    `INSERT INTO servicios (proveedor_id, categoria_id, name, duration, descripcion, precio, rating, es_destacado, orden)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+    [proveedorId, null, input.name, input.duration, input.descripcion ?? null, input.precio, "1", false, 0]
   );
   return rows[0];
 };
@@ -212,9 +212,11 @@ export const findHorarios = async (proveedorId: string) => {
 
 export const insertHorario = async (proveedorId: string, input: CreateHorarioInput) => {
   const { rows } = await pool.query(
-    `INSERT INTO horarios (proveedor_id, dia_semana, hora_apertura, hora_cierre, hora_inicio)
-     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-    [proveedorId, input.diaSemana, input.horaApertura, input.horaCierre, input.horaInicio]
+    `INSERT INTO horarios (proveedor_id, dia_semana, hora_apertura, hora_cierre, status, disponibilidad)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [proveedorId, input.dia_semana, 
+      input.hora_apertura, 
+      input.hora_cierre, true, '']
   );
   return rows[0];
 };
@@ -224,10 +226,11 @@ export const updateHorarioById = async (proveedorId: string, id: string, input: 
   const values: unknown[] = [];
   let idx = 1;
 
-  if (input.diaSemana !== undefined) { fields.push(`dia_semana = $${idx++}`); values.push(input.diaSemana); }
-  if (input.horaApertura !== undefined) { fields.push(`hora_apertura = $${idx++}`); values.push(input.horaApertura); }
-  if (input.horaCierre !== undefined) { fields.push(`hora_cierre = $${idx++}`); values.push(input.horaCierre); }
-  if (input.horaInicio !== undefined) { fields.push(`hora_inicio = $${idx++}`); values.push(input.horaInicio); }
+  if (input.dia_semana !== undefined) { fields.push(`dia_semana = $${idx++}`); values.push(input.dia_semana); }
+  if (input.hora_apertura !== undefined) { fields.push(`hora_apertura = $${idx++}`); values.push(input.hora_apertura); }
+  if (input.hora_cierre !== undefined) { fields.push(`hora_cierre = $${idx++}`); values.push(input.hora_cierre); }
+  if (input.status !== undefined) { fields.push(`status = $${idx++}`); values.push(input.status); }
+  if (input.disponibilidad !== undefined) { fields.push(`disponibilidad = $${idx++}`); values.push(input.disponibilidad); }
 
   if (fields.length === 0) {
     const { rows } = await pool.query('SELECT * FROM horarios WHERE id = $1 AND proveedor_id = $2', [id, proveedorId]);

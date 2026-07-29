@@ -3,12 +3,42 @@ import {
   CreateSucursalInput, UpdateSucursalInput,
   CreateEmpleadoInput, CreateServicioInput, UpdateServicioInput,
   CreateHorarioInput, UpdateHorarioInput, CreateDocumentacionInput,
+  CreateOnboardingInput
 } from './provider.schema';
 import * as providerRepository from './provider.repository';
 
 // ---- Onboarding ----
-export const onboarding = async (userId: string, input: CreateProviderInput) => {
-   
+export const onboarding = async (userId: string, input: CreateOnboardingInput) => {
+   //Guardar el proveedor en la base de datos
+  const provider = await providerRepository.insertProveedor(userId, input);
+  console.log('Proveedor creado:', provider);
+  if (!provider) {
+    throw new Error('Error al crear el proveedor');
+  }
+  //Guardar los servicios en la base de datos
+  if (input.servicios) {
+    for (const servicio of input.servicios) {
+      await providerRepository.insertServicio(provider.id, {
+        name: servicio.nombre,
+        duration: servicio.duracion,
+        descripcion: servicio.descripcion,
+        precio: servicio.precio,
+      });
+      console.log('Servicio creado:', servicio.nombre);
+    }
+  }
+
+  //Guardar los horarios en la base de datos
+  if (input.horarios) {
+    for (const horario of input.horarios) {
+      await providerRepository.insertHorario(provider.id, {
+        dia_semana: horario.dia_semana,
+        hora_apertura: horario.hora_apertura,
+        hora_cierre: horario.hora_cierre
+      });
+    }
+  }
+
 };
 // ---- Proveedores ----
 export const getProveedores = async (page: number, limit: number, filters: { categoria?: number; ciudad?: number; estado?: number }) => {
@@ -19,8 +49,26 @@ export const getProveedorById = async (id: string) => {
   return providerRepository.findProveedorById(id);
 };
 
-export const createProveedor = async (userId: string, input: CreateProviderInput) => {
-  return providerRepository.insertProveedor(userId, input);
+export const createProveedor = async (userId: string, input: CreateProviderInput): Promise<{ id: string }> => {
+  const proveedor = await providerRepository.insertProveedor(userId, {
+    nombre_comercial: input.nombre_comercial,
+    categoria: input.categoria,
+    descripcion: input.descripcion,
+    ciudad: input.ubicacion.ciudad,
+    estado: input.ubicacion.estado,
+    direccion: input.ubicacion.direccion,
+    codigo_postal: input.ubicacion.codigo_postal,
+    telefono: input.contacto.telefono,
+    whatsapp: input.contacto.whatsapp,
+    email: input.contacto.email,
+    datos_legales: {
+      razon_social: input.nombre_legal,
+      representante_legal: undefined,
+      rfc: input.rfc,
+    },
+  });
+
+  return { id: String(proveedor.id) };
 };
 
 export const updateProveedor = async (id: string, input: UpdateProviderInput) => {

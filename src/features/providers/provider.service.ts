@@ -7,6 +7,83 @@ import {
 } from './provider.schema';
 import * as providerRepository from './provider.repository';
 
+type ProviderCatalogueReference = {
+  id: number | null;
+  name: string | null;
+};
+
+type ProviderWithCatalogueNames = {
+  id: string;
+  user_id?: string | null;
+  categoria?: number | null;
+  categoria_nombre?: string | null;
+  ciudad?: number | null;
+  ciudad_nombre?: string | null;
+  estado?: number | null;
+  estado_nombre?: string | null;
+  nombre_legal?: string | null;
+  rfc?: string | null;
+  telefono_whatsapp?: string | null;
+  [key: string]: unknown;
+};
+
+const buildCatalogueReference = (id?: number | null, name?: string | null): ProviderCatalogueReference | null => {
+  if (id == null && !name) {
+    return null;
+  }
+
+  return {
+    id: id ?? null,
+    name: name ?? null,
+  };
+};
+
+const providerServiceFields = 'id, name, duration,descripcion, precio, rating, es_destacado, orden';
+const providerScheduleFields = 'dia_semana, hora_apertura, hora_cierre, disponibilidad';
+
+const enrichProviderData = async (provider: ProviderWithCatalogueNames) => {
+  const [servicios, horario] = await Promise.all([
+    providerRepository.findServicios(provider.id, providerServiceFields),
+    providerRepository.findHorarios(provider.id, providerScheduleFields),
+  ]);
+
+  return mapProviderCatalogueData({ ...provider, servicios, horario });
+};
+
+const enrichProvidersData = async (providers: ProviderWithCatalogueNames[]) => {
+  return Promise.all(providers.map((provider) => enrichProviderData(provider)));
+};
+
+const mapProviderCatalogueData = (provider: ProviderWithCatalogueNames) => {
+  const {
+    user_id,
+    categoria,
+    categoria_nombre,
+    ciudad,
+    ciudad_nombre,
+    estado,
+    estado_nombre,
+    nombre_legal,
+    rfc,
+    telefono_whatsapp,
+    ...rest
+  } = provider;
+
+  return {
+    ...rest,
+    adminId: user_id ?? null,
+    whatsapp: telefono_whatsapp ?? null,
+    datos_legales: {
+      razon_social: nombre_legal ?? null,
+      representante_legal: null,
+      rfc: rfc ?? null,
+    },
+    categoria: buildCatalogueReference(categoria, categoria_nombre),
+    ciudad: buildCatalogueReference(ciudad, ciudad_nombre),
+    estado: buildCatalogueReference(estado, estado_nombre),
+  };
+};
+
 // ---- Onboarding ----
 export const onboarding = async (userId: string, input: CreateOnboardingInput) => {
    //Guardar el proveedor en la base de datos
@@ -42,11 +119,19 @@ export const onboarding = async (userId: string, input: CreateOnboardingInput) =
 };
 // ---- Proveedores ----
 export const getProveedores = async (page: number, limit: number, filters: { categoria?: number; ciudad?: number; estado?: number }) => {
-  return providerRepository.findProveedores(page, limit, filters);
+  const proveedores = await providerRepository.findProveedores(page, limit, filters);
+  const mappedProveedores = await enrichProvidersData(proveedores.proveedores as ProviderWithCatalogueNames[]);
+
+  return { ...proveedores, proveedores: mappedProveedores };
 };
 
 export const getProveedorById = async (id: string) => {
-  return providerRepository.findProveedorById(id);
+  const provider = await providerRepository.findProveedorById(id);
+  if (!provider) {
+    return null;
+  }
+
+  return enrichProviderData(provider as ProviderWithCatalogueNames);
 };
 
 export const createProveedor = async (userId: string, input: CreateProviderInput): Promise<{ id: string }> => {

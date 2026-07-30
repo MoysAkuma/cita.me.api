@@ -11,31 +11,66 @@ import type { CreateOnboardingInput } from './provider.schema';
 export const findProveedores = async (
   page: number,
   limit: number,
-  filters: { categoria?: number; ciudad?: number; estado?: number }
+  filters: { categoria?: number; ciudad?: number; estado?: number },
+  fields: string = '*'
 ) => {
   const offset = (page - 1) * limit;
   const conditions: string[] = [];
   const values: unknown[] = [];
   let idx = 1;
 
-  if (filters.categoria) { conditions.push(`categoria = $${idx++}`); values.push(filters.categoria); }
-  if (filters.ciudad) { conditions.push(`ciudad = $${idx++}`); values.push(filters.ciudad); }
-  if (filters.estado) { conditions.push(`estado = $${idx++}`); values.push(filters.estado); }
+  if (filters.categoria) { conditions.push(`p.categoria = $${idx++}`); values.push(filters.categoria); }
+  if (filters.ciudad) { conditions.push(`p.ciudad = $${idx++}`); values.push(filters.ciudad); }
+  if (filters.estado) { conditions.push(`p.estado = $${idx++}`); values.push(filters.estado); }
 
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-  const { rows: countRows } = await pool.query(`SELECT COUNT(*) FROM proveedores ${where}`, values);
+  const fromAndJoins = `
+    FROM proveedores p
+    LEFT JOIN categorias_proveedores cp ON cp.id = p.categoria
+    LEFT JOIN ciudades c ON c.id = p.ciudad
+    LEFT JOIN estados e ON e.id = p.estado
+  `;
+
+  const { rows: countRows } = await pool.query(`SELECT COUNT(*) ${fromAndJoins} ${where}`, values);
   const total = parseInt(countRows[0].count, 10);
+
+  const selectedFields = fields === '*' ? 'p.*' : fields;
 
   values.push(limit, offset);
   const { rows } = await pool.query(
-    `SELECT * FROM proveedores ${where} ORDER BY nombre_comercial ASC LIMIT $${idx++} OFFSET $${idx}`,
+    `
+      SELECT
+        ${selectedFields},
+        cp.nombre AS categoria_nombre,
+        c.name AS ciudad_nombre,
+        e.name AS estado_nombre
+      ${fromAndJoins}
+      ${where}
+      ORDER BY p.nombre_comercial ASC
+      LIMIT $${idx++}
+      OFFSET $${idx}
+    `,
     values
   );
   return { proveedores: rows, total };
 };
 
 export const findProveedorById = async (id: string) => {
-  const { rows } = await pool.query('SELECT * FROM proveedores WHERE id = $1', [id]);
+  const { rows } = await pool.query(
+    `
+      SELECT
+        p.*,
+        cp.nombre AS categoria_nombre,
+        c.name AS ciudad_nombre,
+        e.name AS estado_nombre
+      FROM proveedores p
+      LEFT JOIN categorias_proveedores cp ON cp.id = p.categoria
+      LEFT JOIN ciudades c ON c.id = p.ciudad
+      LEFT JOIN estados e ON e.id = p.estado
+      WHERE p.id = $1
+    `,
+    [id]
+  );
   return rows[0] ?? null;
 };
 
@@ -162,8 +197,8 @@ export const deleteEmpleadoById = async (proveedorId: string, id: string): Promi
 };
 
 // ---- Servicios ----
-export const findServicios = async (proveedorId: string) => {
-  const { rows } = await pool.query('SELECT * FROM servicios WHERE proveedor_id = $1', [proveedorId]);
+export const findServicios = async (proveedorId: string, fields: string = '*') => {
+  const { rows } = await pool.query(`SELECT ${fields} FROM servicios WHERE proveedor_id = $1`, [proveedorId]);
   return rows;
 };
 
@@ -205,8 +240,8 @@ export const deleteServicioById = async (proveedorId: string, id: string): Promi
 };
 
 // ---- Horarios ----
-export const findHorarios = async (proveedorId: string) => {
-  const { rows } = await pool.query('SELECT * FROM horarios WHERE proveedor_id = $1', [proveedorId]);
+export const findHorarios = async (proveedorId: string, fields: string = '*') => {
+  const { rows } = await pool.query(`SELECT ${fields} FROM horarios WHERE proveedor_id = $1`, [proveedorId]);
   return rows;
 };
 

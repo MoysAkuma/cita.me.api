@@ -85,7 +85,7 @@ const mapProviderCatalogueData = (provider: ProviderWithCatalogueNames) => {
 };
 
 // ---- Onboarding ----
-export const onboarding = async (userId: string, input: CreateOnboardingInput) => {
+export const onboarding = async (userId: string, input: CreateOnboardingInput): Promise<{ id: string }> => {
    //Guardar el proveedor en la base de datos
   const provider = await providerRepository.insertProveedor(userId, input);
   console.log('Proveedor creado:', provider);
@@ -115,6 +115,8 @@ export const onboarding = async (userId: string, input: CreateOnboardingInput) =
       });
     }
   }
+
+  return { id: String(provider.id) };
 
 };
 // ---- Proveedores ----

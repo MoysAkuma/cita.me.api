@@ -84,7 +84,7 @@ export const createServicioSchema = z.object({
 export const updateServicioSchema = createServicioSchema.partial();
 
 export const createHorarioSchema = z.object({
-  dia_semana: z.number().int().min(0).max(6),
+  dia_semana: z.number().int().min(1).max(7),
   hora_apertura: z.string(),
   hora_cierre: z.string(),
   status: z.boolean().optional(),

@@ -187,13 +187,6 @@ const swaggerDefinition = {
           telefono: { type: 'string', example: '+5215555555555' },
           whatsapp: { type: 'string', example: '+5215555555555' },
           email: { type: 'string', format: 'email', example: 'contacto@clinicasanjose.com' },
-          dias_descanso: {
-            type: 'array',
-            items: { type: 'integer', minimum: 0, maximum: 6 },
-            uniqueItems: true,
-            example: [0, 6],
-            description: 'Días sin atención. 0=Domingo, 1=Lunes, ..., 6=Sábado',
-          },
           hora_apertura: {
             type: 'string',
             pattern: '^([01]\\d|2[0-3]):[0-5]\\d$',

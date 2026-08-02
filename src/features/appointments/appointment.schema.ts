@@ -4,6 +4,7 @@ export const createAppointmentSchema = z.object({
   proveedorId: z.string().uuid(),
   servicioId: z.number().int().positive(),
   sucursalId: z.number().int().positive().optional(),
+  userId: z.string().uuid().optional(),
   nombreSolicitante: z.string().max(100),
   whatsappSolicitante: z.string().max(20),
   correoSolicitante: z.string().email().max(100),

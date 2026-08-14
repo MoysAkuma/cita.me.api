@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as appointmentService from './appointment.service';
 import { successResponse, errorResponse, paginatedResponse } from '../../utils/response';
+import { CreateAppointmentInput, UpdateAppointmentInput, UpdateAppointmentStatusInput } from './appointment.schema';
 
 const buildResourceUrl = (req: Request, id: string | number): string => {
   const basePath = req.originalUrl.replace(/\/$/, '');
@@ -28,7 +29,7 @@ export const getCitaById = async (req: Request, res: Response, next: NextFunctio
   } catch (err) { next(err); }
 };
 
-export const createCita = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const createCita = async (req: Request<{}, {}, CreateAppointmentInput>, res: Response, next: NextFunction): Promise<void> => {
   try {
     const cita = await appointmentService.createCita(req.user!.sub, req.body);
     successResponse(res, { id: cita.id, url: buildResourceUrl(req, cita.id) }, 'Appointment created', 201);
